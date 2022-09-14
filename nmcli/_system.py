@@ -38,8 +38,13 @@ class SystemCommand(SystemCommandInterface):
         c = ['sudo', 'nmcli'] if self._use_sudo else ['nmcli']
         commands = c + parameters
         try:
-            r = self._run(commands, capture_output=True,
-                          check=True, env={'LANG': self._lang})
+            if self._lang == '':
+                # For some reason, defining env variables exits with status 1
+                r = self._run(commands, capture_output=True,
+                              check=True)
+            else:
+                r = self._run(commands, capture_output=True,
+                              check=True, env={'LANG': self._lang})
             return r.stdout.decode('utf-8')
         except CalledProcessError as e:
             rc = e.returncode
